@@ -15,6 +15,11 @@ public class ClaveIdentityProviderFactory extends SAMLIdentityProviderFactory {
     public static final String PROVIDER_ID = "clave-saml";
     public static final String NAME = "Cl@ve";
     public static final String CLAVE_SP_TYPE = "clave.sp.type";
+    public static final String CLAVE_LOA = "clave.loa";
+
+    public static final String LOA_LOW = "http://eidas.europa.eu/LoA/low";
+    public static final String LOA_SUBSTANTIAL = "http://eidas.europa.eu/LoA/substantial";
+    public static final String LOA_HIGH = "http://eidas.europa.eu/LoA/high";
 
     @Override
     public String getName() {
@@ -55,6 +60,14 @@ public class ClaveIdentityProviderFactory extends SAMLIdentityProviderFactory {
                 .type(ProviderConfigProperty.LIST_TYPE)
                 .options("public", "private")
                 .defaultValue("public")
+                .add()
+                .property()
+                .name(CLAVE_LOA)
+                .label("eIDAS Level of Assurance")
+                .helpText("Minimum Level of Assurance (LoA) required for the authentication.")
+                .type(ProviderConfigProperty.LIST_TYPE)
+                .options(LOA_LOW, LOA_SUBSTANTIAL, LOA_HIGH)
+                .defaultValue(LOA_SUBSTANTIAL)
                 .add()
                 .build());
 

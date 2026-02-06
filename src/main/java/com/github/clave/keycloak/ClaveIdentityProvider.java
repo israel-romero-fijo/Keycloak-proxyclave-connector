@@ -4,10 +4,12 @@ import org.keycloak.broker.provider.AuthenticationRequest;
 import org.keycloak.broker.saml.SAMLIdentityProvider;
 import org.keycloak.broker.saml.SAMLIdentityProviderConfig;
 import org.keycloak.dom.saml.v2.protocol.AuthnRequestType;
+import org.keycloak.dom.saml.v2.protocol.AuthnContextComparisonType;
 import org.keycloak.models.KeycloakSession;
 import org.keycloak.models.RealmModel;
 import org.keycloak.protocol.saml.JaxrsSAML2BindingBuilder;
 import org.keycloak.saml.SAML2AuthnRequestBuilder;
+import org.keycloak.saml.SAML2RequestedAuthnContextBuilder;
 import org.keycloak.saml.SAML2NameIDPolicyBuilder;
 import org.keycloak.saml.SamlProtocolExtensionsAwareBuilder;
 import org.keycloak.saml.common.exceptions.ProcessingException;
@@ -52,6 +54,14 @@ public class ClaveIdentityProvider extends SAMLIdentityProvider {
             // Add SPType extension
             String spType = getConfig().getConfig().getOrDefault(ClaveIdentityProviderFactory.CLAVE_SP_TYPE, "public");
             build.addExtension(new EidasNodeGenerator(spType));
+
+            // Add RequestedAuthnContext (LoA)
+            String loa = getConfig().getConfig().get(ClaveIdentityProviderFactory.CLAVE_LOA);
+            if (loa != null && !loa.isEmpty()) {
+                build.requestedAuthnContext(new SAML2RequestedAuthnContextBuilder()
+                    .setComparison(AuthnContextComparisonType.MINIMUM)
+                    .addAuthnContextClassRef(loa));
+            }
 
             // Create Binding Builder
             JaxrsSAML2BindingBuilder binding = new JaxrsSAML2BindingBuilder(session)
