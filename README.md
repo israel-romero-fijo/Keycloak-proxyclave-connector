@@ -8,6 +8,8 @@ Este proyecto proporciona un conector (Identity Provider) para Keycloak que faci
 - Preparado para la integración como Service Provider (SP) en Keycloak.
 - Nombre del proveedor: `Cl@ve`.
 - ID del proveedor: `clave-saml`.
+- **Soporte EIDAS**: Inyección automática de la extensión `SPType` (Public/Private) requerida por el nodo eIDAS.
+- **Configuración Optimizada**: Valores por defecto ajustados para Cl@ve (firmas activas, RSA_SHA256).
 
 ## Requisitos
 
@@ -34,19 +36,19 @@ El archivo resultante estará en `target/keycloak-clave-connector-1.0.0-SNAPSHOT
 
 1. Accede a la consola de administración de Keycloak.
 2. Ve a la sección **Identity Providers**.
-3. Haz clic en **Add provider** y selecciona **Cl@ve** de la lista (debería aparecer si la instalación fue correcta).
-4. Configura los parámetros habituales de SAML:
+3. Haz clic en **Add provider** y selecciona **Cl@ve** de la lista.
+4. Configura los parámetros:
    - **Service Provider Entity ID**: El Entity ID que usarás para este SP (debes registrarlo en Cl@ve).
    - **Single Sign-On Service URL**: La URL del IdP de Cl@ve (entorno de pruebas o producción).
-   - **Principal Type**: Normalmente `Attribute [Name]`.
-   - **NameID Policy Format**: Cl@ve suele requerir `Persistent` o `Transient`.
-   - **Sign Documents**: Actívalo si Cl@ve requiere solicitudes firmadas (habitual).
-   - **Signature Algorithm**: RSA_SHA256.
+   - **eIDAS SP Type**: Selecciona `public` o `private` según tu tipo de organización (nuevo campo específico).
+   - **Sign Documents**: Activado por defecto.
+   - **Signature Algorithm**: RSA_SHA256 (por defecto).
+   - **Force Authentication**: Activado por defecto.
 
 ### Integración EIDAS
 
-Para la integración con EIDAS, asegúrate de solicitar los atributos necesarios (Minimum Data Set) en la configuración de atributos del proveedor o mediante un mapper.
+El conector inyecta automáticamente el bloque `<eidas:SPType>` en la solicitud de autenticación SAML.
 
-## Desarrollo
+## Resolución de Problemas
 
-Este conector extiende `SAMLIdentityProvider` de Keycloak. Si necesitas lógica específica para validar respuestas EIDAS (e.g. validación de firmas específica, parsing de atributos complejos), puedes extender la clase `ClaveIdentityProvider`.
+Si encuentras errores de firma, verifica que has importado correctamente el certificado público de Cl@ve en la configuración del Identity Provider (Validate Signature = ON) y que tienes configuradas las claves del reino (Realm Keys) correctamente para firmar las peticiones.
