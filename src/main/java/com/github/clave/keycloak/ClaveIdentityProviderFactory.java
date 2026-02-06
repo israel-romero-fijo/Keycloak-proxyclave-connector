@@ -1,14 +1,20 @@
 package com.github.clave.keycloak;
 
-import org.keycloak.broker.provider.AbstractIdentityProviderFactory;
+import org.keycloak.broker.saml.SAMLIdentityProviderFactory;
 import org.keycloak.broker.saml.SAMLIdentityProviderConfig;
 import org.keycloak.models.IdentityProviderModel;
 import org.keycloak.models.KeycloakSession;
+import org.keycloak.provider.ProviderConfigProperty;
+import org.keycloak.provider.ProviderConfigurationBuilder;
 
-public class ClaveIdentityProviderFactory extends AbstractIdentityProviderFactory<ClaveIdentityProvider> {
+import java.util.ArrayList;
+import java.util.List;
+
+public class ClaveIdentityProviderFactory extends SAMLIdentityProviderFactory {
 
     public static final String PROVIDER_ID = "clave-saml";
     public static final String NAME = "Cl@ve";
+    public static final String CLAVE_SP_TYPE = "clave.sp.type";
 
     @Override
     public String getName() {
@@ -21,12 +27,37 @@ public class ClaveIdentityProviderFactory extends AbstractIdentityProviderFactor
     }
 
     @Override
-    public IdentityProviderModel createConfig() {
-        return new SAMLIdentityProviderConfig();
+    public SAMLIdentityProviderConfig createConfig() {
+        SAMLIdentityProviderConfig config = new SAMLIdentityProviderConfig();
+        // Set defaults for Cl@ve
+        config.setSignSpMetadata(true);
+        config.setWantAuthnRequestsSigned(true);
+        config.setSignatureAlgorithm("RSA_SHA256");
+        config.setNameIDPolicyFormat("urn:oasis:names:tc:SAML:2.0:nameid-format:persistent");
+        config.setForceAuthn(true);
+        return config;
     }
 
     @Override
     public String getId() {
         return PROVIDER_ID;
+    }
+
+    @Override
+    public List<ProviderConfigProperty> getConfigProperties() {
+        List<ProviderConfigProperty> properties = new ArrayList<>(super.getConfigProperties());
+
+        properties.addAll(ProviderConfigurationBuilder.create()
+                .property()
+                .name(CLAVE_SP_TYPE)
+                .label("eIDAS SP Type")
+                .helpText("Type of the Service Provider for eIDAS (public or private).")
+                .type(ProviderConfigProperty.LIST_TYPE)
+                .options("public", "private")
+                .defaultValue("public")
+                .add()
+                .build());
+
+        return properties;
     }
 }
