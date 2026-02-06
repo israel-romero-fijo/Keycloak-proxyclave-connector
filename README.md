@@ -9,7 +9,9 @@ Este proyecto proporciona un conector (Identity Provider) para Keycloak que faci
 - Nombre del proveedor: `Cl@ve`.
 - ID del proveedor: `clave-saml`.
 - **Soporte EIDAS**: Inyección automática de la extensión `SPType` (Public/Private) requerida por el nodo eIDAS.
+- **Soporte LoA**: Configuración del Nivel de Garantía (Level of Assurance) requerido.
 - **Configuración Optimizada**: Valores por defecto ajustados para Cl@ve (firmas activas, RSA_SHA256).
+- **Mapeo de Atributos**: Incluye un mapper específico para atributos SAML.
 
 ## Requisitos
 
@@ -40,14 +42,27 @@ El archivo resultante estará en `target/keycloak-clave-connector-1.0.0-SNAPSHOT
 4. Configura los parámetros:
    - **Service Provider Entity ID**: El Entity ID que usarás para este SP (debes registrarlo en Cl@ve).
    - **Single Sign-On Service URL**: La URL del IdP de Cl@ve (entorno de pruebas o producción).
-   - **eIDAS SP Type**: Selecciona `public` o `private` según tu tipo de organización (nuevo campo específico).
+   - **eIDAS SP Type**: Selecciona `public` o `private` según tu tipo de organización.
+   - **eIDAS Level of Assurance**: Selecciona el nivel requerido (Low, Substantial, High).
    - **Sign Documents**: Activado por defecto.
    - **Signature Algorithm**: RSA_SHA256 (por defecto).
    - **Force Authentication**: Activado por defecto.
 
 ### Integración EIDAS
 
-El conector inyecta automáticamente el bloque `<eidas:SPType>` en la solicitud de autenticación SAML.
+El conector inyecta automáticamente:
+- `<eidas:SPType>` en la solicitud SAML.
+- `<saml:RequestedAuthnContext>` con el LoA seleccionado y comparación `minimum`.
+
+### Mapeo de Atributos
+
+Para importar atributos del usuario (DNI, Nombre, Apellidos) desde la aserción SAML de Cl@ve:
+1. Ve a la pestaña **Mappers** del Identity Provider.
+2. Haz clic en **Add mapper**.
+3. Selecciona **Attribute Importer**.
+4. Configura el mapeo:
+   - **Attribute Name**: El nombre del atributo en la respuesta SAML (ej: `eidas:PersonIdentifier`, `eidas:FamilyName`).
+   - **User Attribute Name**: El atributo del usuario en Keycloak donde se guardará (ej: `username`, `lastName`).
 
 ## Resolución de Problemas
 
