@@ -9,7 +9,10 @@ Este proyecto proporciona un conector (Identity Provider) para Keycloak que faci
 - Nombre del proveedor: `Cl@ve`.
 - ID del proveedor: `clave-saml`.
 - **Soporte EIDAS**: Inyección automática de la extensión `SPType` (Public/Private) requerida por el nodo eIDAS.
-- **Configuración Optimizada**: Valores por defecto ajustados para Cl@ve (firmas activas, RSA_SHA256).
+- **Nivel de Aseguramiento (LoA)**: Configuración configurable del LoA solicitado (Low, Substantial, High).
+- **Mapeo de Atributos**: Incluye un `Clave Attribute Importer` para extraer información de la aserción SAML.
+- **Internacionalización**: Soporte para mensajes en Inglés y Español.
+- **Configuración Optimizada**: Valores por defecto ajustados para Cl@ve (firmas activas, RSA_SHA256, Persistent NameID).
 
 ## Requisitos
 
