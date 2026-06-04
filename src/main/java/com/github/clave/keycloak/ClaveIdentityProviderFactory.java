@@ -10,6 +10,9 @@ import org.keycloak.provider.ProviderConfigurationBuilder;
 import java.util.ArrayList;
 import java.util.List;
 
+/**
+ * Factory for {@link ClaveIdentityProvider}.
+ */
 public class ClaveIdentityProviderFactory extends SAMLIdentityProviderFactory {
 
     public static final String PROVIDER_ID = "clave-saml";
@@ -55,16 +58,16 @@ public class ClaveIdentityProviderFactory extends SAMLIdentityProviderFactory {
         properties.addAll(ProviderConfigurationBuilder.create()
                 .property()
                 .name(CLAVE_SP_TYPE)
-                .label("eIDAS SP Type")
-                .helpText("Type of the Service Provider for eIDAS (public or private).")
+                .label("clave.sp.type")
+                .helpText("clave.sp.type.tooltip")
                 .type(ProviderConfigProperty.LIST_TYPE)
                 .options("public", "private")
                 .defaultValue("public")
                 .add()
                 .property()
                 .name(CLAVE_LOA)
-                .label("eIDAS Level of Assurance")
-                .helpText("Minimum Level of Assurance (LoA) required for the authentication.")
+                .label("clave.loa")
+                .helpText("clave.loa.tooltip")
                 .type(ProviderConfigProperty.LIST_TYPE)
                 .options(LOA_LOW, LOA_SUBSTANTIAL, LOA_HIGH)
                 .defaultValue(LOA_SUBSTANTIAL)

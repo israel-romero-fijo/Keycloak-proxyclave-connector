@@ -1,54 +1,60 @@
 # Keycloak Cl@ve Connector
 
-Este proyecto proporciona un conector (Identity Provider) para Keycloak que facilita la integración con la pasarela Cl@ve (Cl@ve 2.0 / EIDAS) de la Administración General del Estado de España.
+Este proyecto proporciona un conector profesional (Identity Provider) para Keycloak que facilita la integración con la pasarela **Cl@ve 2.0 / EIDAS** de la Administración General del Estado de España.
 
-## Características
+## Características Profesionales
 
-- Implementación basada en SAML 2.0.
-- Preparado para la integración como Service Provider (SP) en Keycloak.
-- Nombre del proveedor: `Cl@ve`.
-- ID del proveedor: `clave-saml`.
-- **Soporte EIDAS**: Inyección automática de la extensión `SPType` (Public/Private) requerida por el nodo eIDAS.
-- **Configuración Optimizada**: Valores por defecto ajustados para Cl@ve (firmas activas, RSA_SHA256).
+- **Implementación SAML 2.0 Nativa**: Construido sobre las APIs de Keycloak para una máxima compatibilidad.
+- **Soporte eIDAS Completo**: Inyección automática de la extensión `<eidas:SPType>` requerida.
+- **Gestión de LoA**: Configuración sencilla del *Level of Assurance* (Bajo, Sustancial, Alto) directamente desde la consola.
+- **Internacionalización (i18n)**: Interfaz de configuración disponible en Español e Inglés.
+- **Mapeador de Atributos Personalizado**: Incluye `Cl@ve Attribute Importer` para facilitar la extracción de datos del ciudadano (DNI, nombre, apellidos).
+- **Seguridad por Defecto**: Configurado con algoritmos de firma modernos (RSA_SHA256) y políticas de NameID persistentes.
+- **Registro de Logs Avanzado**: Uso de JBoss Logging para una trazabilidad clara y depuración simplificada.
 
 ## Requisitos
 
 - Java 17+
 - Maven 3.x
-- Keycloak 24.x (o compatible con las APIs de SAML)
+- Keycloak 24.x o superior
 
 ## Compilación
 
-Para compilar el proyecto y generar el archivo JAR:
+Para generar el artefacto profesional:
 
 ```bash
 mvn clean package
 ```
 
-El archivo resultante estará en `target/keycloak-clave-connector-1.0.0-SNAPSHOT.jar`.
+El archivo JAR se generará en `target/keycloak-clave-connector-1.0.0-SNAPSHOT.jar`.
 
 ## Instalación
 
-1. Copia el archivo JAR generado al directorio `providers/` de tu instalación de Keycloak.
-2. Reinicia Keycloak (o ejecuta `kc.sh build` si es necesario en modo producción).
+1. Copia el archivo JAR a la carpeta `providers/` de Keycloak.
+2. Ejecuta `kc.sh build` (si usas Quarkus) y reinicia el servicio.
 
 ## Configuración en Keycloak
 
-1. Accede a la consola de administración de Keycloak.
-2. Ve a la sección **Identity Providers**.
-3. Haz clic en **Add provider** y selecciona **Cl@ve** de la lista.
-4. Configura los parámetros:
-   - **Service Provider Entity ID**: El Entity ID que usarás para este SP (debes registrarlo en Cl@ve).
-   - **Single Sign-On Service URL**: La URL del IdP de Cl@ve (entorno de pruebas o producción).
-   - **eIDAS SP Type**: Selecciona `public` o `private` según tu tipo de organización (nuevo campo específico).
-   - **Sign Documents**: Activado por defecto.
-   - **Signature Algorithm**: RSA_SHA256 (por defecto).
-   - **Force Authentication**: Activado por defecto.
+1. Crea un nuevo Identity Provider de tipo **Cl@ve**.
+2. Parámetros clave:
+   - **Service Provider Entity ID**: Tu identificador oficial registrado en Cl@ve.
+   - **Single Sign-On Service URL**: URL del nodo eIDAS / Cl@ve.
+   - **eIDAS SP Type**: Selecciona si tu organización es `public` o `private`.
+   - **eIDAS Level of Assurance**: Selecciona el nivel mínimo requerido (ej. `Sustancial`).
 
-### Integración EIDAS
+### Mapeo de Atributos
 
-El conector inyecta automáticamente el bloque `<eidas:SPType>` en la solicitud de autenticación SAML.
+Para importar datos como el DNI, añade un "Mapper" de tipo **Cl@ve Attribute Importer** al proveedor configurado. Los atributos comunes enviados por Cl@ve incluyen:
+- `http://eidas.europa.eu/attributes/naturalperson/PersonIdentifier` (DNI/NIE)
+- `http://eidas.europa.eu/attributes/naturalperson/CurrentGivenName` (Nombre)
+- `http://eidas.europa.eu/attributes/naturalperson/CurrentFamilyName` (Apellidos)
 
-## Resolución de Problemas
+## Desarrollo y Calidad
 
-Si encuentras errores de firma, verifica que has importado correctamente el certificado público de Cl@ve en la configuración del Identity Provider (Validate Signature = ON) y que tienes configuradas las claves del reino (Realm Keys) correctamente para firmar las peticiones.
+El proyecto sigue los estándares de desarrollo de Keycloak, utilizando:
+- **JBoss Logging** para el sistema de trazas.
+- **JUnit 5 y Mockito** para pruebas unitarias.
+- **SPI de Keycloak** para la extensibilidad.
+
+---
+*Desarrollado para garantizar integraciones seguras y eficientes con la administración pública española.*
