@@ -1,9 +1,9 @@
 package com.github.clave.keycloak;
 
+import org.jboss.logging.Logger;
 import org.keycloak.broker.provider.AuthenticationRequest;
 import org.keycloak.broker.saml.SAMLIdentityProvider;
 import org.keycloak.broker.saml.SAMLIdentityProviderConfig;
-import org.keycloak.dom.saml.v2.protocol.AuthnRequestType;
 import org.keycloak.dom.saml.v2.protocol.AuthnContextComparisonType;
 import org.keycloak.models.KeycloakSession;
 import org.keycloak.models.RealmModel;
@@ -11,26 +11,23 @@ import org.keycloak.protocol.saml.JaxrsSAML2BindingBuilder;
 import org.keycloak.saml.SAML2AuthnRequestBuilder;
 import org.keycloak.saml.SAML2RequestedAuthnContextBuilder;
 import org.keycloak.saml.SAML2NameIDPolicyBuilder;
-import org.keycloak.saml.SamlProtocolExtensionsAwareBuilder;
-import org.keycloak.saml.common.exceptions.ProcessingException;
+import org.keycloak.saml.SignatureAlgorithm;
 import org.keycloak.crypto.KeyWrapper;
 import org.keycloak.crypto.KeyUse;
 import org.keycloak.crypto.Algorithm;
-import org.keycloak.saml.SignatureAlgorithm;
 
 import jakarta.ws.rs.core.Response;
 import jakarta.ws.rs.core.UriInfo;
-import javax.xml.stream.XMLStreamException;
-import javax.xml.stream.XMLStreamWriter;
-import java.net.URI;
 import java.security.PrivateKey;
 import java.security.PublicKey;
 import java.security.cert.X509Certificate;
-import java.util.logging.Logger;
 
+/**
+ * Identity Provider implementation for Spanish Cl@ve system.
+ */
 public class ClaveIdentityProvider extends SAMLIdentityProvider {
 
-    private static final Logger logger = Logger.getLogger(ClaveIdentityProvider.class.getName());
+    private static final Logger logger = Logger.getLogger(ClaveIdentityProvider.class);
 
     public ClaveIdentityProvider(KeycloakSession session, SAMLIdentityProviderConfig config) {
         super(session, config, org.keycloak.saml.validators.DestinationValidator.forProtocolMap(null));
@@ -57,11 +54,13 @@ public class ClaveIdentityProvider extends SAMLIdentityProvider {
 
             // Add RequestedAuthnContext (LoA)
             String loa = getConfig().getConfig().get(ClaveIdentityProviderFactory.CLAVE_LOA);
-            if (loa != null && !loa.isEmpty()) {
-                build.requestedAuthnContext(new SAML2RequestedAuthnContextBuilder()
-                    .setComparison(AuthnContextComparisonType.MINIMUM)
-                    .addAuthnContextClassRef(loa));
+            if (loa == null || loa.isEmpty()) {
+                loa = ClaveIdentityProviderFactory.LOA_SUBSTANTIAL;
             }
+
+            build.requestedAuthnContext(new SAML2RequestedAuthnContextBuilder()
+                .setComparison(AuthnContextComparisonType.MINIMUM)
+                .addAuthnContextClassRef(loa));
 
             // Create Binding Builder
             JaxrsSAML2BindingBuilder binding = new JaxrsSAML2BindingBuilder(session)
@@ -75,7 +74,7 @@ public class ClaveIdentityProvider extends SAMLIdentityProvider {
                      try {
                          sa = SignatureAlgorithm.valueOf(getConfig().getSignatureAlgorithm());
                      } catch (IllegalArgumentException | NullPointerException e) {
-                         logger.warning("Invalid or missing signature algorithm: " + getConfig().getSignatureAlgorithm() + ". Defaulting to RSA_SHA256.");
+                         logger.warnf("Invalid or missing signature algorithm: %s. Defaulting to RSA_SHA256.", getConfig().getSignatureAlgorithm());
                          sa = SignatureAlgorithm.RSA_SHA256;
                      }
 
@@ -88,6 +87,7 @@ public class ClaveIdentityProvider extends SAMLIdentityProvider {
             return binding.redirectBinding(build.toDocument()).request(destinationUrl);
 
         } catch (Exception e) {
+            logger.error("Error preparing Cl@ve SAML request", e);
             throw new RuntimeException("Error preparing Cl@ve SAML request", e);
         }
     }
@@ -102,26 +102,5 @@ public class ClaveIdentityProvider extends SAMLIdentityProvider {
                 .path(getConfig().getAlias())
                 .path("endpoint")
                 .build().toString();
-    }
-
-    private static class EidasNodeGenerator implements SamlProtocolExtensionsAwareBuilder.NodeGenerator {
-        private final String spType;
-        private static final String EIDAS_NS = "http://eidas.europa.eu/saml-extensions";
-
-        public EidasNodeGenerator(String spType) {
-            this.spType = spType;
-        }
-
-        @Override
-        public void write(XMLStreamWriter writer) throws ProcessingException {
-            try {
-                writer.writeStartElement("eidas", "SPType", EIDAS_NS);
-                writer.writeNamespace("eidas", EIDAS_NS);
-                writer.writeCharacters(spType);
-                writer.writeEndElement();
-            } catch (XMLStreamException e) {
-                throw new ProcessingException(e);
-            }
-        }
     }
 }

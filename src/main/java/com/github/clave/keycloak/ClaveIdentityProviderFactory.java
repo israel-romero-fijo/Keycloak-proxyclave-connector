@@ -40,6 +40,8 @@ public class ClaveIdentityProviderFactory extends SAMLIdentityProviderFactory {
         config.setSignatureAlgorithm("RSA_SHA256");
         config.setNameIDPolicyFormat("urn:oasis:names:tc:SAML:2.0:nameid-format:persistent");
         config.setForceAuthn(true);
+        config.getConfig().put(CLAVE_LOA, LOA_SUBSTANTIAL);
+        config.getConfig().put(CLAVE_SP_TYPE, "public");
         return config;
     }
 
@@ -55,16 +57,16 @@ public class ClaveIdentityProviderFactory extends SAMLIdentityProviderFactory {
         properties.addAll(ProviderConfigurationBuilder.create()
                 .property()
                 .name(CLAVE_SP_TYPE)
-                .label("eIDAS SP Type")
-                .helpText("Type of the Service Provider for eIDAS (public or private).")
+                .label("clave.sp.type.label")
+                .helpText("clave.sp.type.tooltip")
                 .type(ProviderConfigProperty.LIST_TYPE)
                 .options("public", "private")
                 .defaultValue("public")
                 .add()
                 .property()
                 .name(CLAVE_LOA)
-                .label("eIDAS Level of Assurance")
-                .helpText("Minimum Level of Assurance (LoA) required for the authentication.")
+                .label("clave.loa.label")
+                .helpText("clave.loa.tooltip")
                 .type(ProviderConfigProperty.LIST_TYPE)
                 .options(LOA_LOW, LOA_SUBSTANTIAL, LOA_HIGH)
                 .defaultValue(LOA_SUBSTANTIAL)
