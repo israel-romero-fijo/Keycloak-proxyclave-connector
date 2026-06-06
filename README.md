@@ -2,20 +2,20 @@
 
 Este proyecto proporciona un conector (Identity Provider) para Keycloak que facilita la integración con la pasarela Cl@ve (Cl@ve 2.0 / EIDAS) de la Administración General del Estado de España.
 
-## Características
+## Características Profesionales
 
-- Implementación basada en SAML 2.0.
-- Preparado para la integración como Service Provider (SP) en Keycloak.
-- Nombre del proveedor: `Cl@ve`.
-- ID del proveedor: `clave-saml`.
-- **Soporte EIDAS**: Inyección automática de la extensión `SPType` (Public/Private) requerida por el nodo eIDAS.
-- **Configuración Optimizada**: Valores por defecto ajustados para Cl@ve (firmas activas, RSA_SHA256).
+- **Implementación Robusta**: Basada en SAML 2.0 con soporte nativo para Keycloak 24+.
+- **Soporte EIDAS Completo**: Inyección automática de la extensión `SPType` y gestión de Niveles de Seguridad (LoA).
+- **Internacionalización (i18n)**: Interfaz de configuración disponible en Inglés y Español.
+- **Mapeo de Atributos**: Incluye un `ClaveAttributeMapper` especializado para facilitar la importación de atributos eIDAS.
+- **Logging Estándar**: Uso de JBoss Logging para una integración perfecta con los logs de Keycloak.
+- **Configuración Optimizada**: Valores por defecto ajustados para la normativa española de administración electrónica.
 
 ## Requisitos
 
 - Java 17+
 - Maven 3.x
-- Keycloak 24.x (o compatible con las APIs de SAML)
+- Keycloak 24.x o superior
 
 ## Compilación
 
@@ -25,30 +25,34 @@ Para compilar el proyecto y generar el archivo JAR:
 mvn clean package
 ```
 
-El archivo resultante estará en `target/keycloak-clave-connector-1.0.0-SNAPSHOT.jar`.
+El archivo resultante estará en `target/keycloak-clave-connector-1.1.0-SNAPSHOT.jar`.
 
 ## Instalación
 
 1. Copia el archivo JAR generado al directorio `providers/` de tu instalación de Keycloak.
-2. Reinicia Keycloak (o ejecuta `kc.sh build` si es necesario en modo producción).
+2. Reinicia Keycloak (o ejecuta `kc.sh build` si estás en modo optimizado).
 
 ## Configuración en Keycloak
 
 1. Accede a la consola de administración de Keycloak.
 2. Ve a la sección **Identity Providers**.
 3. Haz clic en **Add provider** y selecciona **Cl@ve** de la lista.
-4. Configura los parámetros:
-   - **Service Provider Entity ID**: El Entity ID que usarás para este SP (debes registrarlo en Cl@ve).
-   - **Single Sign-On Service URL**: La URL del IdP de Cl@ve (entorno de pruebas o producción).
-   - **eIDAS SP Type**: Selecciona `public` o `private` según tu tipo de organización (nuevo campo específico).
-   - **Sign Documents**: Activado por defecto.
-   - **Signature Algorithm**: RSA_SHA256 (por defecto).
-   - **Force Authentication**: Activado por defecto.
+4. Parámetros específicos:
+   - **eIDAS SP Type**: Selecciona `public` o `private`.
+   - **eIDAS Level of Assurance**: Selecciona el nivel mínimo requerido (Low, Substantial, High).
 
-### Integración EIDAS
+### Mapeo de Atributos
 
-El conector inyecta automáticamente el bloque `<eidas:SPType>` en la solicitud de autenticación SAML.
+Puedes añadir mappers de tipo **Cl@ve User Attribute Mapper** para extraer información como el DNI/NIE, nombre o apellidos desde la aserción SAML de Cl@ve hacia el perfil del usuario en Keycloak.
 
-## Resolución de Problemas
+## Desarrollo y Tests
 
-Si encuentras errores de firma, verifica que has importado correctamente el certificado público de Cl@ve en la configuración del Identity Provider (Validate Signature = ON) y que tienes configuradas las claves del reino (Realm Keys) correctamente para firmar las peticiones.
+El proyecto incluye tests unitarios con JUnit 5. Para ejecutarlos:
+
+```bash
+mvn test
+```
+
+## Licencia
+
+Este proyecto se distribuye bajo licencia Apache 2.0.

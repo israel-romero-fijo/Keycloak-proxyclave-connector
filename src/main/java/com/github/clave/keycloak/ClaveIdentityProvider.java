@@ -26,11 +26,11 @@ import java.net.URI;
 import java.security.PrivateKey;
 import java.security.PublicKey;
 import java.security.cert.X509Certificate;
-import java.util.logging.Logger;
+import org.jboss.logging.Logger;
 
 public class ClaveIdentityProvider extends SAMLIdentityProvider {
 
-    private static final Logger logger = Logger.getLogger(ClaveIdentityProvider.class.getName());
+    protected static final Logger logger = Logger.getLogger(ClaveIdentityProvider.class);
 
     public ClaveIdentityProvider(KeycloakSession session, SAMLIdentityProviderConfig config) {
         super(session, config, org.keycloak.saml.validators.DestinationValidator.forProtocolMap(null));
@@ -75,7 +75,7 @@ public class ClaveIdentityProvider extends SAMLIdentityProvider {
                      try {
                          sa = SignatureAlgorithm.valueOf(getConfig().getSignatureAlgorithm());
                      } catch (IllegalArgumentException | NullPointerException e) {
-                         logger.warning("Invalid or missing signature algorithm: " + getConfig().getSignatureAlgorithm() + ". Defaulting to RSA_SHA256.");
+                         logger.warnf("Invalid or missing signature algorithm: %s. Defaulting to RSA_SHA256.", getConfig().getSignatureAlgorithm());
                          sa = SignatureAlgorithm.RSA_SHA256;
                      }
 
@@ -102,26 +102,5 @@ public class ClaveIdentityProvider extends SAMLIdentityProvider {
                 .path(getConfig().getAlias())
                 .path("endpoint")
                 .build().toString();
-    }
-
-    private static class EidasNodeGenerator implements SamlProtocolExtensionsAwareBuilder.NodeGenerator {
-        private final String spType;
-        private static final String EIDAS_NS = "http://eidas.europa.eu/saml-extensions";
-
-        public EidasNodeGenerator(String spType) {
-            this.spType = spType;
-        }
-
-        @Override
-        public void write(XMLStreamWriter writer) throws ProcessingException {
-            try {
-                writer.writeStartElement("eidas", "SPType", EIDAS_NS);
-                writer.writeNamespace("eidas", EIDAS_NS);
-                writer.writeCharacters(spType);
-                writer.writeEndElement();
-            } catch (XMLStreamException e) {
-                throw new ProcessingException(e);
-            }
-        }
     }
 }
