@@ -15,13 +15,15 @@ import org.keycloak.crypto.KeyWrapper;
 import org.keycloak.crypto.KeyUse;
 import org.keycloak.crypto.Algorithm;
 import org.keycloak.saml.SignatureAlgorithm;
-import org.jboss.logging.Logger;
 
 import jakarta.ws.rs.core.Response;
 import jakarta.ws.rs.core.UriInfo;
 import java.security.PrivateKey;
 import java.security.PublicKey;
 import java.security.cert.X509Certificate;
+import java.util.Arrays;
+import java.util.List;
+import java.util.stream.Collectors;
 
 /**
  * Identity Provider implementation for Cl@ve (Spanish Government SAML Gateway).
@@ -54,7 +56,18 @@ public class ClaveIdentityProvider extends SAMLIdentityProvider {
 
             // Add SPType extension
             String spType = getConfig().getConfig().getOrDefault(ClaveIdentityProviderFactory.CLAVE_SP_TYPE, "public");
-            build.addExtension(new EidasNodeGenerator(spType));
+
+            // Add Requested Attributes extension
+            String attributesStr = getConfig().getConfig().get(ClaveIdentityProviderFactory.CLAVE_REQUESTED_ATTRIBUTES);
+            List<String> requestedAttributes = null;
+            if (attributesStr != null && !attributesStr.trim().isEmpty()) {
+                requestedAttributes = Arrays.stream(attributesStr.split(","))
+                        .map(String::trim)
+                        .filter(s -> !s.isEmpty())
+                        .collect(Collectors.toList());
+            }
+
+            build.addExtension(new EidasNodeGenerator(spType, requestedAttributes));
 
             // Add RequestedAuthnContext (LoA)
             String loa = getConfig().getConfig().get(ClaveIdentityProviderFactory.CLAVE_LOA);

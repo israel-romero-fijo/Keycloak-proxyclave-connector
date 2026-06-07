@@ -22,6 +22,7 @@ public class ClaveIdentityProviderFactory extends SAMLIdentityProviderFactory {
     public static final String NAME = "Cl@ve";
     public static final String CLAVE_SP_TYPE = "clave.sp.type";
     public static final String CLAVE_LOA = "clave.loa";
+    public static final String CLAVE_REQUESTED_ATTRIBUTES = "clave.requested.attributes";
 
     public static final String LOA_LOW = "http://eidas.europa.eu/LoA/low";
     public static final String LOA_SUBSTANTIAL = "http://eidas.europa.eu/LoA/substantial";
@@ -76,6 +77,12 @@ public class ClaveIdentityProviderFactory extends SAMLIdentityProviderFactory {
                 .type(ProviderConfigProperty.LIST_TYPE)
                 .options(LOA_LOW, LOA_SUBSTANTIAL, LOA_HIGH)
                 .defaultValue(LOA_SUBSTANTIAL)
+                .add()
+                .property()
+                .name(CLAVE_REQUESTED_ATTRIBUTES)
+                .label("clave.requested.attributes")
+                .helpText("clave.requested.attributes.tooltip")
+                .type(ProviderConfigProperty.STRING_TYPE)
                 .add()
                 .build());
 
