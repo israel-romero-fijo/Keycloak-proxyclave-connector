@@ -4,6 +4,7 @@ import org.junit.jupiter.api.Test;
 import javax.xml.stream.XMLOutputFactory;
 import javax.xml.stream.XMLStreamWriter;
 import java.io.StringWriter;
+import java.util.Arrays;
 
 import static org.junit.jupiter.api.Assertions.assertTrue;
 
@@ -25,8 +26,11 @@ public class EidasNodeGeneratorTest {
     }
 
     @Test
-    public void testEidasNodeGeneratorPrivate() throws Exception {
-        EidasNodeGenerator generator = new EidasNodeGenerator("private");
+    public void testEidasNodeGeneratorWithAttributes() throws Exception {
+        EidasNodeGenerator generator = new EidasNodeGenerator("public", Arrays.asList(
+                "http://eidas.europa.eu/attributes/naturalperson/PersonIdentifier",
+                "http://eidas.europa.eu/attributes/naturalperson/CurrentGivenName"
+        ));
 
         StringWriter stringWriter = new StringWriter();
         XMLStreamWriter xmlWriter = XMLOutputFactory.newInstance().createXMLStreamWriter(stringWriter);
@@ -34,6 +38,10 @@ public class EidasNodeGeneratorTest {
         generator.write(xmlWriter);
 
         String xml = stringWriter.toString();
-        assertTrue(xml.contains(">private<"));
+        assertTrue(xml.contains("eidas:SPType"));
+        assertTrue(xml.contains("eidas:RequestedAttributes"));
+        assertTrue(xml.contains("Name=\"http://eidas.europa.eu/attributes/naturalperson/PersonIdentifier\""));
+        assertTrue(xml.contains("Name=\"http://eidas.europa.eu/attributes/naturalperson/CurrentGivenName\""));
+        assertTrue(xml.contains("isRequired=\"true\""));
     }
 }

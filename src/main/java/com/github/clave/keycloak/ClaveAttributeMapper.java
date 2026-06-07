@@ -10,6 +10,11 @@ public class ClaveAttributeMapper extends UserAttributeMapper {
 
     public static final String PROVIDER_ID = "clave-user-attribute-mapper";
 
+    // eIDAS Attribute URIs
+    public static final String PERSON_IDENTIFIER = "http://eidas.europa.eu/attributes/naturalperson/PersonIdentifier";
+    public static final String GIVEN_NAME = "http://eidas.europa.eu/attributes/naturalperson/CurrentGivenName";
+    public static final String FAMILY_NAME = "http://eidas.europa.eu/attributes/naturalperson/CurrentFamilyName";
+
     @Override
     public String[] getCompatibleProviders() {
         return new String[]{ClaveIdentityProviderFactory.PROVIDER_ID};
@@ -32,6 +37,7 @@ public class ClaveAttributeMapper extends UserAttributeMapper {
 
     @Override
     public String getHelpText() {
-        return "Import attributes from Cl@ve SAML assertions into user attributes or properties.";
+        return "Import attributes from Cl@ve SAML assertions into user attributes or properties. " +
+               "Common attributes: PersonIdentifier (DNI), CurrentGivenName, CurrentFamilyName.";
     }
 }
