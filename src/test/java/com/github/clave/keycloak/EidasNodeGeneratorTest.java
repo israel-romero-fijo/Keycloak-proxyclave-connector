@@ -1,6 +1,7 @@
 package com.github.clave.keycloak;
 
 import org.junit.jupiter.api.Test;
+import org.keycloak.saml.SamlProtocolExtensionsAwareBuilder;
 import javax.xml.stream.XMLOutputFactory;
 import javax.xml.stream.XMLStreamWriter;
 import java.io.StringWriter;

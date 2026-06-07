@@ -10,12 +10,6 @@ import org.keycloak.provider.ProviderConfigurationBuilder;
 import java.util.ArrayList;
 import java.util.List;
 
-/**
- * Factory for the Cl@ve SAML Identity Provider.
- * <p>
- * This factory provides default configuration suitable for Cl@ve and eIDAS,
- * including SPType and LoA settings.
- */
 public class ClaveIdentityProviderFactory extends SAMLIdentityProviderFactory {
 
     public static final String PROVIDER_ID = "clave-saml";
@@ -40,14 +34,13 @@ public class ClaveIdentityProviderFactory extends SAMLIdentityProviderFactory {
     @Override
     public SAMLIdentityProviderConfig createConfig() {
         SAMLIdentityProviderConfig config = new SAMLIdentityProviderConfig();
-        // Set defaults for Cl@ve
+        // Set defaults for Cl@ve 2.0
         config.setSignSpMetadata(true);
         config.setWantAuthnRequestsSigned(true);
-        config.setSignatureAlgorithm("RSA_SHA256");
+        config.setSignatureAlgorithm("RSA_SHA256"); // Defaulting to RSA_SHA256 as it's most compatible, but EC is now supported.
         config.setNameIDPolicyFormat("urn:oasis:names:tc:SAML:2.0:nameid-format:persistent");
         config.setForceAuthn(true);
-        config.getConfig().put(CLAVE_LOA, LOA_SUBSTANTIAL);
-        config.getConfig().put(CLAVE_SP_TYPE, "public");
+        config.setPostBindingAuthnRequest(true); // Cl@ve 2.0 often prefers POST
         return config;
     }
 
@@ -64,7 +57,7 @@ public class ClaveIdentityProviderFactory extends SAMLIdentityProviderFactory {
                 .property()
                 .name(CLAVE_SP_TYPE)
                 .label("clave.sp.type")
-                .helpText("clave.sp.type.tooltip")
+                .helpText("clave.sp.type.help")
                 .type(ProviderConfigProperty.LIST_TYPE)
                 .options("public", "private")
                 .defaultValue("public")
@@ -72,7 +65,7 @@ public class ClaveIdentityProviderFactory extends SAMLIdentityProviderFactory {
                 .property()
                 .name(CLAVE_LOA)
                 .label("clave.loa")
-                .helpText("clave.loa.tooltip")
+                .helpText("clave.loa.help")
                 .type(ProviderConfigProperty.LIST_TYPE)
                 .options(LOA_LOW, LOA_SUBSTANTIAL, LOA_HIGH)
                 .defaultValue(LOA_SUBSTANTIAL)

@@ -2,10 +2,6 @@ package com.github.clave.keycloak;
 
 import org.keycloak.broker.saml.mappers.UserAttributeMapper;
 
-/**
- * Custom attribute mapper for Cl@ve.
- * Extends the default SAML UserAttributeMapper to provide specific support for Cl@ve/eIDAS attributes.
- */
 public class ClaveAttributeMapper extends UserAttributeMapper {
 
     public static final String PROVIDER_ID = "clave-user-attribute-mapper";
@@ -27,11 +23,11 @@ public class ClaveAttributeMapper extends UserAttributeMapper {
 
     @Override
     public String getDisplayType() {
-        return "Cl@ve Attribute Importer";
+        return "Cl@ve User Attribute Mapper";
     }
 
     @Override
     public String getHelpText() {
-        return "Import attributes from Cl@ve SAML assertions into user attributes or properties.";
+        return "Import specific Cl@ve/eIDAS attributes from the SAML assertion.";
     }
 }
