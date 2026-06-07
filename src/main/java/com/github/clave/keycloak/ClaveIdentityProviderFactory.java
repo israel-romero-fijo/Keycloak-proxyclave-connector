@@ -10,6 +10,12 @@ import org.keycloak.provider.ProviderConfigurationBuilder;
 import java.util.ArrayList;
 import java.util.List;
 
+/**
+ * Factory for the Cl@ve SAML Identity Provider.
+ * <p>
+ * This factory provides default configuration suitable for Cl@ve and eIDAS,
+ * including SPType and LoA settings.
+ */
 public class ClaveIdentityProviderFactory extends SAMLIdentityProviderFactory {
 
     public static final String PROVIDER_ID = "clave-saml";
@@ -57,7 +63,7 @@ public class ClaveIdentityProviderFactory extends SAMLIdentityProviderFactory {
         properties.addAll(ProviderConfigurationBuilder.create()
                 .property()
                 .name(CLAVE_SP_TYPE)
-                .label("clave.sp.type.label")
+                .label("clave.sp.type")
                 .helpText("clave.sp.type.tooltip")
                 .type(ProviderConfigProperty.LIST_TYPE)
                 .options("public", "private")
@@ -65,7 +71,7 @@ public class ClaveIdentityProviderFactory extends SAMLIdentityProviderFactory {
                 .add()
                 .property()
                 .name(CLAVE_LOA)
-                .label("clave.loa.label")
+                .label("clave.loa")
                 .helpText("clave.loa.tooltip")
                 .type(ProviderConfigProperty.LIST_TYPE)
                 .options(LOA_LOW, LOA_SUBSTANTIAL, LOA_HIGH)

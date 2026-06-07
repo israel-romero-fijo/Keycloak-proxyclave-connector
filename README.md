@@ -1,18 +1,18 @@
 # Keycloak Cl@ve Connector
 
-Este proyecto proporciona un conector profesional (Identity Provider) para Keycloak que facilita la integración con la pasarela Cl@ve (Cl@ve 2.0 / EIDAS) de la Administración General del Estado de España.
+Este proyecto proporciona un conector profesional (Identity Provider) para Keycloak que facilita la integración con la pasarela **Cl@ve 2.0 / EIDAS** de la Administración General del Estado de España.
 
 ## Características Profesionales
 
-- **SAML 2.0 Compliant**: Basado en el estándar SAML 2.0 y las librerías oficiales de Keycloak.
-- **Inyección de Extensiones eIDAS**: Soporte nativo para el nodo eIDAS mediante la inclusión automática del bloque `<eidas:SPType>`.
-- **Configuración de LoA**: Posibilidad de definir el Nivel de Seguridad (Level of Assurance) requerido: Low, Substantial o High.
-- **Internacionalización (i18n)**: Soporte completo para inglés y español en la interfaz de administración de Keycloak.
-- **Mapeo de Atributos Personalizado**: Incluye un `Clave User Attribute Mapper` para facilitar la importación de datos del ciudadano.
-- **Logging Robusto**: Uso de JBoss Logging para una integración perfecta con los logs de Keycloak.
-- **Seguridad por Defecto**: Configurado con algoritmos de firma modernos (RSA_SHA256) y políticas de NameID persistentes.
-
-Para ver el historial detallado de mejoras, consulta el [CHANGELOG.md](CHANGELOG.md).
+- Implementación basada en SAML 2.0.
+- Preparado para la integración como Service Provider (SP) en Keycloak.
+- Nombre del proveedor: `Cl@ve`.
+- ID del proveedor: `clave-saml`.
+- **Soporte EIDAS**: Inyección automática de la extensión `SPType` (Public/Private) requerida por el nodo eIDAS.
+- **Nivel de Aseguramiento (LoA)**: Configuración configurable del LoA solicitado (Low, Substantial, High).
+- **Mapeo de Atributos**: Incluye un `Clave Attribute Importer` para extraer información de la aserción SAML.
+- **Internacionalización**: Soporte para mensajes en Inglés y Español.
+- **Configuración Optimizada**: Valores por defecto ajustados para Cl@ve (firmas activas, RSA_SHA256, Persistent NameID).
 
 ## Requisitos
 
@@ -20,7 +20,9 @@ Para ver el historial detallado de mejoras, consulta el [CHANGELOG.md](CHANGELOG
 - Maven 3.x
 - Keycloak 24.x o superior
 
-## Compilación e Instalación
+## Compilación
+
+Para generar el artefacto profesional:
 
 ```bash
 mvn clean package
@@ -33,6 +35,7 @@ mvn clean package
 ## Configuración Detallada
 
 ### Parámetros del Proveedor de Identidad
+El archivo JAR se generará en `target/keycloak-clave-connector-1.0.0-SNAPSHOT.jar`.
 
 - **eIDAS SP Type**:
   - `Public`: Para organismos de la Administración Pública.
@@ -42,34 +45,31 @@ mvn clean package
   - `High`: Para trámites que requieran el máximo nivel de seguridad.
 
 ### Mapeo de Atributos (Cl@ve Attributes)
+1. Copia el archivo JAR a la carpeta `providers/` de Keycloak.
+2. Ejecuta `kc.sh build` (si usas Quarkus) y reinicia el servicio.
 
 Cl@ve devuelve una serie de atributos en la respuesta SAML. Puedes mapearlos usando el **Cl@ve User Attribute Mapper** incluido:
 
-| Atributo SAML | Descripción |
-|---------------|-------------|
-| `irisp_dni` | DNI o NIE del ciudadano |
-| `irisp_givenname` | Nombre de pila |
-| `irisp_surname` | Primer apellido |
-| `irisp_surname2` | Segundo apellido |
-| `irisp_pseudonym` | Identificador único persistente |
+1. Crea un nuevo Identity Provider de tipo **Cl@ve**.
+2. Parámetros clave:
+   - **Service Provider Entity ID**: Tu identificador oficial registrado en Cl@ve.
+   - **Single Sign-On Service URL**: URL del nodo eIDAS / Cl@ve.
+   - **eIDAS SP Type**: Selecciona si tu organización es `public` o `private`.
+   - **eIDAS Level of Assurance**: Selecciona el nivel mínimo requerido (ej. `Sustancial`).
 
-### Ejemplo de configuración de Mapper:
-1. Ve a **Identity Providers** -> **Cl@ve** -> **Mappers**.
-2. Haz clic en **Add mapper**.
-3. Selecciona **Cl@ve User Attribute** como mapper type.
-4. **Name**: `DNI Mapper`
-5. **User Attribute Name**: `dni`
-6. **SAML Attribute Name**: `irisp_dni`
+### Mapeo de Atributos
 
-## Contribución y Desarrollo
+Para importar datos como el DNI, añade un "Mapper" de tipo **Cl@ve Attribute Importer** al proveedor configurado. Los atributos comunes enviados por Cl@ve incluyen:
+- `http://eidas.europa.eu/attributes/naturalperson/PersonIdentifier` (DNI/NIE)
+- `http://eidas.europa.eu/attributes/naturalperson/CurrentGivenName` (Nombre)
+- `http://eidas.europa.eu/attributes/naturalperson/CurrentFamilyName` (Apellidos)
 
-El proyecto incluye tests unitarios con JUnit 5 y Mockito para asegurar la estabilidad de las extensiones eIDAS y la configuración del factory.
+## Desarrollo y Calidad
 
-Para ejecutar los tests:
-```bash
-mvn test
-```
+El proyecto sigue los estándares de desarrollo de Keycloak, utilizando:
+- **JBoss Logging** para el sistema de trazas.
+- **JUnit 5 y Mockito** para pruebas unitarias.
+- **SPI de Keycloak** para la extensibilidad.
 
-## Soporte e Integración
-
-Este conector ha sido diseñado siguiendo las guías de integración de la plataforma Cl@ve y los estándares eIDAS para garantizar la interoperabilidad con los nodos de interoperabilidad europeos.
+---
+*Desarrollado para garantizar integraciones seguras y eficientes con la administración pública española.*

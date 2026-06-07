@@ -9,21 +9,15 @@ import org.keycloak.broker.saml.mappers.UserAttributeMapper;
 public class ClaveAttributeMapper extends UserAttributeMapper {
 
     public static final String PROVIDER_ID = "clave-user-attribute-mapper";
-    private static final String[] COMPATIBLE_PROVIDERS = {ClaveIdentityProviderFactory.PROVIDER_ID};
 
     @Override
     public String[] getCompatibleProviders() {
-        return COMPATIBLE_PROVIDERS;
+        return new String[]{ClaveIdentityProviderFactory.PROVIDER_ID};
     }
 
     @Override
     public String getId() {
         return PROVIDER_ID;
-    }
-
-    @Override
-    public String getHelpText() {
-        return "Import specific Cl@ve/eIDAS attributes into user attributes.";
     }
 
     @Override
@@ -33,6 +27,11 @@ public class ClaveAttributeMapper extends UserAttributeMapper {
 
     @Override
     public String getDisplayType() {
-        return "Cl@ve User Attribute";
+        return "Cl@ve Attribute Importer";
+    }
+
+    @Override
+    public String getHelpText() {
+        return "Import attributes from Cl@ve SAML assertions into user attributes or properties.";
     }
 }

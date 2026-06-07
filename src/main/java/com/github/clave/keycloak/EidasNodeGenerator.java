@@ -11,7 +11,7 @@ import javax.xml.stream.XMLStreamWriter;
  */
 public class EidasNodeGenerator implements SamlProtocolExtensionsAwareBuilder.NodeGenerator {
     private final String spType;
-    public static final String EIDAS_NS = "http://eidas.europa.eu/saml-extensions";
+    private static final String EIDAS_NS = "http://eidas.europa.eu/saml-extensions";
 
     public EidasNodeGenerator(String spType) {
         this.spType = spType;

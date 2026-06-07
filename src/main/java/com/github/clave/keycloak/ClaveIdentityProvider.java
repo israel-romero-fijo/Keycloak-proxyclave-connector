@@ -11,10 +11,11 @@ import org.keycloak.protocol.saml.JaxrsSAML2BindingBuilder;
 import org.keycloak.saml.SAML2AuthnRequestBuilder;
 import org.keycloak.saml.SAML2RequestedAuthnContextBuilder;
 import org.keycloak.saml.SAML2NameIDPolicyBuilder;
-import org.keycloak.saml.SignatureAlgorithm;
 import org.keycloak.crypto.KeyWrapper;
 import org.keycloak.crypto.KeyUse;
 import org.keycloak.crypto.Algorithm;
+import org.keycloak.saml.SignatureAlgorithm;
+import org.jboss.logging.Logger;
 
 import jakarta.ws.rs.core.Response;
 import jakarta.ws.rs.core.UriInfo;
@@ -23,7 +24,10 @@ import java.security.PublicKey;
 import java.security.cert.X509Certificate;
 
 /**
- * Identity Provider implementation for Spanish Cl@ve system.
+ * Identity Provider implementation for Cl@ve (Spanish Government SAML Gateway).
+ * <p>
+ * This provider extends the standard SAML Identity Provider to include eIDAS specific extensions
+ * like SPType and RequestedAuthnContext for Level of Assurance (LoA).
  */
 public class ClaveIdentityProvider extends SAMLIdentityProvider {
 
