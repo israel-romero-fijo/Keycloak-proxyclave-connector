@@ -1,5 +1,6 @@
 package com.github.clave.keycloak;
 
+import org.jboss.logging.Logger;
 import org.keycloak.broker.provider.AuthenticationRequest;
 import org.keycloak.broker.saml.SAMLIdentityProvider;
 import org.keycloak.broker.saml.SAMLIdentityProviderConfig;
@@ -57,11 +58,13 @@ public class ClaveIdentityProvider extends SAMLIdentityProvider {
 
             // Add RequestedAuthnContext (LoA)
             String loa = getConfig().getConfig().get(ClaveIdentityProviderFactory.CLAVE_LOA);
-            if (loa != null && !loa.isEmpty()) {
-                build.requestedAuthnContext(new SAML2RequestedAuthnContextBuilder()
-                    .setComparison(AuthnContextComparisonType.MINIMUM)
-                    .addAuthnContextClassRef(loa));
+            if (loa == null || loa.isEmpty()) {
+                loa = ClaveIdentityProviderFactory.LOA_SUBSTANTIAL;
             }
+
+            build.requestedAuthnContext(new SAML2RequestedAuthnContextBuilder()
+                .setComparison(AuthnContextComparisonType.MINIMUM)
+                .addAuthnContextClassRef(loa));
 
             // Create Binding Builder
             JaxrsSAML2BindingBuilder binding = new JaxrsSAML2BindingBuilder(session)

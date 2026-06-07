@@ -28,14 +28,27 @@ Para generar el artefacto profesional:
 mvn clean package
 ```
 
+1. Copia `target/keycloak-clave-connector-1.0.0-SNAPSHOT.jar` al directorio `providers/` de Keycloak.
+2. Ejecuta `kc.sh build` (opcional según el modo de despliegue).
+3. Inicia Keycloak.
+
+## Configuración Detallada
+
+### Parámetros del Proveedor de Identidad
 El archivo JAR se generará en `target/keycloak-clave-connector-1.0.0-SNAPSHOT.jar`.
 
-## Instalación
+- **eIDAS SP Type**:
+  - `Public`: Para organismos de la Administración Pública.
+  - `Private`: Para entidades privadas autorizadas.
+- **eIDAS Level of Assurance**:
+  - `Substantial`: Valor por defecto, recomendado para la mayoría de trámites.
+  - `High`: Para trámites que requieran el máximo nivel de seguridad.
 
+### Mapeo de Atributos (Cl@ve Attributes)
 1. Copia el archivo JAR a la carpeta `providers/` de Keycloak.
 2. Ejecuta `kc.sh build` (si usas Quarkus) y reinicia el servicio.
 
-## Configuración en Keycloak
+Cl@ve devuelve una serie de atributos en la respuesta SAML. Puedes mapearlos usando el **Cl@ve User Attribute Mapper** incluido:
 
 1. Crea un nuevo Identity Provider de tipo **Cl@ve**.
 2. Parámetros clave:

@@ -46,6 +46,8 @@ public class ClaveIdentityProviderFactory extends SAMLIdentityProviderFactory {
         config.setSignatureAlgorithm("RSA_SHA256");
         config.setNameIDPolicyFormat("urn:oasis:names:tc:SAML:2.0:nameid-format:persistent");
         config.setForceAuthn(true);
+        config.getConfig().put(CLAVE_LOA, LOA_SUBSTANTIAL);
+        config.getConfig().put(CLAVE_SP_TYPE, "public");
         return config;
     }
 
