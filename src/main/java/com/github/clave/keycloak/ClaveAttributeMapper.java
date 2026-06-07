@@ -31,6 +31,6 @@ public class ClaveAttributeMapper extends UserAttributeMapper {
 
     @Override
     public String getHelpText() {
-        return "Import attributes from Cl@ve SAML assertions.";
+        return "Import attributes from Cl@ve SAML assertions into user attributes or properties.";
     }
 }
