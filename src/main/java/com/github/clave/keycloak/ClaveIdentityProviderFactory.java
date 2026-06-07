@@ -11,7 +11,10 @@ import java.util.ArrayList;
 import java.util.List;
 
 /**
- * Factory for {@link ClaveIdentityProvider}.
+ * Factory for the Cl@ve SAML Identity Provider.
+ * <p>
+ * This factory provides default configuration suitable for Cl@ve and eIDAS,
+ * including SPType and LoA settings.
  */
 public class ClaveIdentityProviderFactory extends SAMLIdentityProviderFactory {
 

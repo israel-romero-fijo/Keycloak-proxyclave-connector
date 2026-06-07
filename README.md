@@ -4,13 +4,15 @@ Este proyecto proporciona un conector profesional (Identity Provider) para Keycl
 
 ## Características Profesionales
 
-- **Implementación SAML 2.0 Nativa**: Construido sobre las APIs de Keycloak para una máxima compatibilidad.
-- **Soporte eIDAS Completo**: Inyección automática de la extensión `<eidas:SPType>` requerida.
-- **Gestión de LoA**: Configuración sencilla del *Level of Assurance* (Bajo, Sustancial, Alto) directamente desde la consola.
-- **Internacionalización (i18n)**: Interfaz de configuración disponible en Español e Inglés.
-- **Mapeador de Atributos Personalizado**: Incluye `Cl@ve Attribute Importer` para facilitar la extracción de datos del ciudadano (DNI, nombre, apellidos).
-- **Seguridad por Defecto**: Configurado con algoritmos de firma modernos (RSA_SHA256) y políticas de NameID persistentes.
-- **Registro de Logs Avanzado**: Uso de JBoss Logging para una trazabilidad clara y depuración simplificada.
+- Implementación basada en SAML 2.0.
+- Preparado para la integración como Service Provider (SP) en Keycloak.
+- Nombre del proveedor: `Cl@ve`.
+- ID del proveedor: `clave-saml`.
+- **Soporte EIDAS**: Inyección automática de la extensión `SPType` (Public/Private) requerida por el nodo eIDAS.
+- **Nivel de Aseguramiento (LoA)**: Configuración configurable del LoA solicitado (Low, Substantial, High).
+- **Mapeo de Atributos**: Incluye un `Clave Attribute Importer` para extraer información de la aserción SAML.
+- **Internacionalización**: Soporte para mensajes en Inglés y Español.
+- **Configuración Optimizada**: Valores por defecto ajustados para Cl@ve (firmas activas, RSA_SHA256, Persistent NameID).
 
 ## Requisitos
 

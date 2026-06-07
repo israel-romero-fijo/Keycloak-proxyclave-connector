@@ -23,7 +23,10 @@ import java.security.PublicKey;
 import java.security.cert.X509Certificate;
 
 /**
- * Identity Provider implementation for Cl@ve (SAML 2.0).
+ * Identity Provider implementation for Cl@ve (Spanish Government SAML Gateway).
+ * <p>
+ * This provider extends the standard SAML Identity Provider to include eIDAS specific extensions
+ * like SPType and RequestedAuthnContext for Level of Assurance (LoA).
  */
 public class ClaveIdentityProvider extends SAMLIdentityProvider {
 
