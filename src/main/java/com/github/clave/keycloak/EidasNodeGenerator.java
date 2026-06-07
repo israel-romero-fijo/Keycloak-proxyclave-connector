@@ -6,6 +6,9 @@ import org.keycloak.saml.common.exceptions.ProcessingException;
 import javax.xml.stream.XMLStreamException;
 import javax.xml.stream.XMLStreamWriter;
 
+/**
+ * Generates the eIDAS SPType extension for SAML AuthnRequests.
+ */
 public class EidasNodeGenerator implements SamlProtocolExtensionsAwareBuilder.NodeGenerator {
     private final String spType;
     private static final String EIDAS_NS = "http://eidas.europa.eu/saml-extensions";
