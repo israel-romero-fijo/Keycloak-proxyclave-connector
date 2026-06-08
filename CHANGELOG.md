@@ -2,6 +2,16 @@
 
 All notable changes to this project are documented in this file.
 
+## [1.2.0] - 2026-06-08
+
+### Added
+- **eIDAS RequestedAttributes Support**: The connector now can inject the `RequestedAttributes` extension into the SAML AuthnRequest, allowing fine-grained control over the attributes requested from the eIDAS node.
+- **Enhanced Attribute Constants**: `ClaveAttributeMapper` now includes predefined constants for standard eIDAS attributes (PersonIdentifier, CurrentGivenName, CurrentFamilyName, DateOfBirth).
+- **Advanced Logging**: Added detailed debug logging using JBoss Logging to facilitate troubleshooting of SAML request generation.
+
+### Changed
+- **Configurable Attributes**: Users can now configure the list of requested attributes directly from the Keycloak administration console.
+
 ## [1.1.0] - 2026-06-05
 
 ### Added

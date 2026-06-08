@@ -15,13 +15,15 @@ import org.keycloak.crypto.KeyWrapper;
 import org.keycloak.crypto.KeyUse;
 import org.keycloak.crypto.Algorithm;
 import org.keycloak.saml.SignatureAlgorithm;
-import org.jboss.logging.Logger;
 
 import jakarta.ws.rs.core.Response;
 import jakarta.ws.rs.core.UriInfo;
 import java.security.PrivateKey;
 import java.security.PublicKey;
 import java.security.cert.X509Certificate;
+import java.util.Arrays;
+import java.util.List;
+import java.util.stream.Collectors;
 
 /**
  * Identity Provider implementation for Cl@ve (Spanish Government SAML Gateway).
@@ -45,6 +47,8 @@ public class ClaveIdentityProvider extends SAMLIdentityProvider {
             String issuerURL = getEntityId(uriInfo, realm);
             String destinationUrl = getConfig().getSingleSignOnServiceUrl();
 
+            logger.debugf("Preparing Cl@ve SAML request for issuer %s and destination %s", issuerURL, destinationUrl);
+
             SAML2AuthnRequestBuilder build = new SAML2AuthnRequestBuilder()
                 .destination(destinationUrl)
                 .issuer(issuerURL)
@@ -52,9 +56,20 @@ public class ClaveIdentityProvider extends SAMLIdentityProvider {
                 .isPassive(false)
                 .nameIdPolicy(SAML2NameIDPolicyBuilder.format(getConfig().getNameIDPolicyFormat()));
 
-            // Add SPType extension
+            // Add SPType extension and RequestedAttributes
             String spType = getConfig().getConfig().getOrDefault(ClaveIdentityProviderFactory.CLAVE_SP_TYPE, "public");
-            build.addExtension(new EidasNodeGenerator(spType));
+            String requestedAttributesStr = getConfig().getConfig().get(ClaveIdentityProviderFactory.CLAVE_REQUESTED_ATTRIBUTES);
+            List<String> requestedAttributes = null;
+
+            if (requestedAttributesStr != null && !requestedAttributesStr.isEmpty()) {
+                requestedAttributes = Arrays.stream(requestedAttributesStr.split(","))
+                        .map(String::trim)
+                        .filter(s -> !s.isEmpty())
+                        .collect(Collectors.toList());
+            }
+
+            logger.debugf("eIDAS Extensions: SPType=%s, RequestedAttributes=%s", spType, requestedAttributes);
+            build.addExtension(new EidasNodeGenerator(spType, requestedAttributes));
 
             // Add RequestedAuthnContext (LoA)
             String loa = getConfig().getConfig().get(ClaveIdentityProviderFactory.CLAVE_LOA);
@@ -62,6 +77,7 @@ public class ClaveIdentityProvider extends SAMLIdentityProvider {
                 loa = ClaveIdentityProviderFactory.LOA_SUBSTANTIAL;
             }
 
+            logger.debugf("eIDAS RequestedAuthnContext LoA: %s", loa);
             build.requestedAuthnContext(new SAML2RequestedAuthnContextBuilder()
                 .setComparison(AuthnContextComparisonType.MINIMUM)
                 .addAuthnContextClassRef(loa));

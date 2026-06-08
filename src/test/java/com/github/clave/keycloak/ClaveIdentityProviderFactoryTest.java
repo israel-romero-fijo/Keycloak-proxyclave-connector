@@ -39,6 +39,7 @@ public class ClaveIdentityProviderFactoryTest {
 
         boolean foundSpType = false;
         boolean foundLoa = false;
+        boolean foundAttributes = false;
 
         for (ProviderConfigProperty property : properties) {
             if (ClaveIdentityProviderFactory.CLAVE_SP_TYPE.equals(property.getName())) {
@@ -47,10 +48,14 @@ public class ClaveIdentityProviderFactoryTest {
             } else if (ClaveIdentityProviderFactory.CLAVE_LOA.equals(property.getName())) {
                 foundLoa = true;
                 assertEquals("clave.loa", property.getLabel());
+            } else if (ClaveIdentityProviderFactory.CLAVE_REQUESTED_ATTRIBUTES.equals(property.getName())) {
+                foundAttributes = true;
+                assertEquals("clave.requested.attributes", property.getLabel());
             }
         }
 
         assertTrue(foundSpType, "CLAVE_SP_TYPE property not found");
         assertTrue(foundLoa, "CLAVE_LOA property not found");
+        assertTrue(foundAttributes, "CLAVE_REQUESTED_ATTRIBUTES property not found");
     }
 }

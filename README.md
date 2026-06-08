@@ -10,8 +10,9 @@ Este proyecto proporciona un conector profesional (Identity Provider) para Keycl
 - ID del proveedor: `clave-saml`.
 - **Soporte EIDAS**: Inyección automática de la extensión `SPType` (Public/Private) requerida por el nodo eIDAS.
 - **Nivel de Aseguramiento (LoA)**: Configuración configurable del LoA solicitado (Low, Substantial, High).
-- **Mapeo de Atributos**: Incluye un `Clave Attribute Importer` para extraer información de la aserción SAML.
-- **Internacionalización**: Soporte para mensajes en Inglés y Español.
+- **Extensión RequestedAttributes**: Capacidad de solicitar atributos específicos en la AuthnRequest según el estándar eIDAS.
+- **Mapeo de Atributos**: Incluye un `Clave Attribute Importer` con constantes para atributos estándar (DNI, Nombre, Apellidos, Fecha de Nacimiento).
+- **Internacionalización**: Soporte completo para mensajes en Inglés y Español.
 - **Configuración Optimizada**: Valores por defecto ajustados para Cl@ve (firmas activas, RSA_SHA256, Persistent NameID).
 
 ## Requisitos
@@ -43,6 +44,8 @@ El archivo JAR se generará en `target/keycloak-clave-connector-1.0.0-SNAPSHOT.j
 - **eIDAS Level of Assurance**:
   - `Substantial`: Valor por defecto, recomendado para la mayoría de trámites.
   - `High`: Para trámites que requieran el máximo nivel de seguridad.
+- **eIDAS Requested Attributes**:
+  - Lista separada por comas de URIs de atributos. Por defecto incluye el identificador personal, nombre y apellidos.
 
 ### Mapeo de Atributos (Cl@ve Attributes)
 1. Copia el archivo JAR a la carpeta `providers/` de Keycloak.
