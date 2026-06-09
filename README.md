@@ -8,9 +8,10 @@ Este proyecto proporciona un conector profesional (Identity Provider) para Keycl
 - Preparado para la integración como Service Provider (SP) en Keycloak.
 - Nombre del proveedor: `Cl@ve`.
 - ID del proveedor: `clave-saml`.
-- **Soporte EIDAS**: Inyección automática de la extensión `SPType` (Public/Private) requerida por el nodo eIDAS.
+- **Soporte EIDAS**: Inyección automática de las extensiones `SPType` y `RequestedAttributes` requeridas por el nodo eIDAS.
 - **Nivel de Aseguramiento (LoA)**: Configuración configurable del LoA solicitado (Low, Substantial, High).
-- **Mapeo de Atributos**: Incluye un `Clave Attribute Importer` para extraer información de la aserción SAML.
+- **Atributos Configurables**: Permite definir qué atributos eIDAS solicitar formalmente en el AuthnRequest.
+- **Mapeo de Atributos**: Incluye un `Clave Attribute Importer` para extraer información de la aserción SAML utilizando constantes estándar eIDAS.
 - **Internacionalización**: Soporte para mensajes en Inglés y Español.
 - **Configuración Optimizada**: Valores por defecto ajustados para Cl@ve (firmas activas, RSA_SHA256, Persistent NameID).
 
@@ -56,13 +57,18 @@ Cl@ve devuelve una serie de atributos en la respuesta SAML. Puedes mapearlos usa
    - **Single Sign-On Service URL**: URL del nodo eIDAS / Cl@ve.
    - **eIDAS SP Type**: Selecciona si tu organización es `public` o `private`.
    - **eIDAS Level of Assurance**: Selecciona el nivel mínimo requerido (ej. `Sustancial`).
+   - **eIDAS Requested Attributes**: Lista separada por comas de URIs de atributos (por defecto incluye DNI, Nombre, Apellidos y Fecha de Nacimiento).
 
 ### Mapeo de Atributos
 
-Para importar datos como el DNI, añade un "Mapper" de tipo **Cl@ve Attribute Importer** al proveedor configurado. Los atributos comunes enviados por Cl@ve incluyen:
-- `http://eidas.europa.eu/attributes/naturalperson/PersonIdentifier` (DNI/NIE)
-- `http://eidas.europa.eu/attributes/naturalperson/CurrentGivenName` (Nombre)
-- `http://eidas.europa.eu/attributes/naturalperson/CurrentFamilyName` (Apellidos)
+Para importar datos como el DNI, añade un "Mapper" de tipo **Cl@ve Attribute Importer** al proveedor configurado. El conector proporciona constantes para los atributos estándar:
+
+| Atributo eIDAS | Descripción | URI |
+|----------------|-------------|-----|
+| PersonIdentifier | DNI/NIE | `http://eidas.europa.eu/attributes/naturalperson/PersonIdentifier` |
+| CurrentGivenName | Nombre | `http://eidas.europa.eu/attributes/naturalperson/CurrentGivenName` |
+| CurrentFamilyName| Apellidos | `http://eidas.europa.eu/attributes/naturalperson/CurrentFamilyName` |
+| DateOfBirth | Fecha Nacimiento | `http://eidas.europa.eu/attributes/naturalperson/DateOfBirth` |
 
 ## Desarrollo y Calidad
 
