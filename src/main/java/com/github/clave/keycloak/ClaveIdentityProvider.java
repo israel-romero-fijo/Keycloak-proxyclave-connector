@@ -15,11 +15,14 @@ import org.keycloak.crypto.KeyWrapper;
 import org.keycloak.crypto.KeyUse;
 import org.keycloak.crypto.Algorithm;
 import org.keycloak.saml.SignatureAlgorithm;
-import org.jboss.logging.Logger;
 
 import jakarta.ws.rs.core.Response;
 import jakarta.ws.rs.core.UriInfo;
 import java.security.PrivateKey;
+import java.util.Arrays;
+import java.util.Collections;
+import java.util.List;
+import java.util.stream.Collectors;
 import java.security.PublicKey;
 import java.security.cert.X509Certificate;
 
@@ -45,6 +48,10 @@ public class ClaveIdentityProvider extends SAMLIdentityProvider {
             String issuerURL = getEntityId(uriInfo, realm);
             String destinationUrl = getConfig().getSingleSignOnServiceUrl();
 
+            if (logger.isDebugEnabled()) {
+                logger.debugf("Preparing Cl@ve SAML AuthnRequest. Issuer: %s, Destination: %s", issuerURL, destinationUrl);
+            }
+
             SAML2AuthnRequestBuilder build = new SAML2AuthnRequestBuilder()
                 .destination(destinationUrl)
                 .issuer(issuerURL)
@@ -52,9 +59,19 @@ public class ClaveIdentityProvider extends SAMLIdentityProvider {
                 .isPassive(false)
                 .nameIdPolicy(SAML2NameIDPolicyBuilder.format(getConfig().getNameIDPolicyFormat()));
 
-            // Add SPType extension
+            // Parse requested attributes
+            String requestedAttrConfig = getConfig().getConfig().get(ClaveIdentityProviderFactory.CLAVE_REQUESTED_ATTRIBUTES);
+            List<String> requestedAttributes = Collections.emptyList();
+            if (requestedAttrConfig != null && !requestedAttrConfig.isEmpty()) {
+                requestedAttributes = Arrays.stream(requestedAttrConfig.split(","))
+                        .map(String::trim)
+                        .filter(s -> !s.isEmpty())
+                        .collect(Collectors.toList());
+            }
+
+            // Add eIDAS extensions (SPType and RequestedAttributes)
             String spType = getConfig().getConfig().getOrDefault(ClaveIdentityProviderFactory.CLAVE_SP_TYPE, "public");
-            build.addExtension(new EidasNodeGenerator(spType));
+            build.addExtension(new EidasNodeGenerator(spType, requestedAttributes));
 
             // Add RequestedAuthnContext (LoA)
             String loa = getConfig().getConfig().get(ClaveIdentityProviderFactory.CLAVE_LOA);

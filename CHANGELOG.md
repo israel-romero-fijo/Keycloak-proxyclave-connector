@@ -2,6 +2,18 @@
 
 All notable changes to this project are documented in this file.
 
+## [1.2.0] - 2026-06-09
+
+### Added
+- **eIDAS RequestedAttributes Extension**: The connector now generates the `RequestedAttributes` extension in the SAML AuthnRequest, allowing explicit request of eIDAS attributes.
+- **Configurable Attributes**: New configuration property `clave.requested.attributes` to customize the list of requested attributes from the administration UI.
+- **Enhanced Attribute Constants**: Defined standard eIDAS URIs as constants in `ClaveAttributeMapper` to facilitate configuration and reduce errors.
+- **Detailed Debug Logging**: Added specialized logging to trace SAML request parameters (Issuer, Destination) for easier troubleshooting.
+
+### Changed
+- **SAML Request Refactoring**: Improved `EidasNodeGenerator` to handle multiple extensions and more complex XML structures.
+- **Professional Defaults**: Updated default configuration to include a core set of eIDAS attributes (PersonIdentifier, GivenName, FamilyName, DateOfBirth).
+
 ## [1.1.0] - 2026-06-05
 
 ### Added
