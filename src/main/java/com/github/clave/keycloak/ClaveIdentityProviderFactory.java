@@ -22,10 +22,17 @@ public class ClaveIdentityProviderFactory extends SAMLIdentityProviderFactory {
     public static final String NAME = "Cl@ve";
     public static final String CLAVE_SP_TYPE = "clave.sp.type";
     public static final String CLAVE_LOA = "clave.loa";
+    public static final String CLAVE_REQUESTED_ATTRIBUTES = "clave.requested.attributes";
 
     public static final String LOA_LOW = "http://eidas.europa.eu/LoA/low";
     public static final String LOA_SUBSTANTIAL = "http://eidas.europa.eu/LoA/substantial";
     public static final String LOA_HIGH = "http://eidas.europa.eu/LoA/high";
+
+    public static final String DEFAULT_REQUESTED_ATTRIBUTES =
+        "http://eidas.europa.eu/attributes/naturalperson/PersonIdentifier," +
+        "http://eidas.europa.eu/attributes/naturalperson/CurrentGivenName," +
+        "http://eidas.europa.eu/attributes/naturalperson/CurrentFamilyName," +
+        "http://eidas.europa.eu/attributes/naturalperson/DateOfBirth";
 
     @Override
     public String getName() {
@@ -48,6 +55,7 @@ public class ClaveIdentityProviderFactory extends SAMLIdentityProviderFactory {
         config.setForceAuthn(true);
         config.getConfig().put(CLAVE_LOA, LOA_SUBSTANTIAL);
         config.getConfig().put(CLAVE_SP_TYPE, "public");
+        config.getConfig().put(CLAVE_REQUESTED_ATTRIBUTES, DEFAULT_REQUESTED_ATTRIBUTES);
         return config;
     }
 
@@ -76,6 +84,13 @@ public class ClaveIdentityProviderFactory extends SAMLIdentityProviderFactory {
                 .type(ProviderConfigProperty.LIST_TYPE)
                 .options(LOA_LOW, LOA_SUBSTANTIAL, LOA_HIGH)
                 .defaultValue(LOA_SUBSTANTIAL)
+                .add()
+                .property()
+                .name(CLAVE_REQUESTED_ATTRIBUTES)
+                .label("clave.requested.attributes")
+                .helpText("clave.requested.attributes.tooltip")
+                .type(ProviderConfigProperty.STRING_TYPE)
+                .defaultValue(DEFAULT_REQUESTED_ATTRIBUTES)
                 .add()
                 .build());
 

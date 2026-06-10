@@ -2,6 +2,19 @@
 
 All notable changes to this project are documented in this file.
 
+## [1.2.0] - 2026-06-10
+
+### Added
+- **Dynamic Requested Attributes**: Configurable list of eIDAS attributes to be requested in the SAML AuthnRequest.
+- **Enhanced LoA Support**: Improved handling of Level of Assurance with better configuration defaults.
+- **SAML Binding Flexibility**: Automatic detection and support for both POST and Redirect bindings.
+- **Professional Attribute Mapper**: `ClaveAttributeMapper` now includes predefined constants for standard eIDAS attributes (PersonIdentifier, GivenName, FamilyName, DateOfBirth).
+- **Extended Test Suite**: Added verification for requested attributes and identity provider initialization.
+
+### Changed
+- **Logging Improvements**: Added detailed debug logging for SAML request parameters to aid in production troubleshooting.
+- **Improved i18n**: Expanded translations for new configuration properties.
+
 ## [1.1.0] - 2026-06-05
 
 ### Added
