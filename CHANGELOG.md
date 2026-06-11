@@ -2,6 +2,23 @@
 
 All notable changes to this project are documented in this file.
 
+## [1.2.0] - 2026-06-11
+
+### Added
+- **Dynamic SAML Binding Support**: Now respects the administrator's choice of Redirect or POST binding for AuthnRequests.
+- **Enhanced eIDAS Extensions**: Implemented support for `RequestedAttributes` in SAML AuthnRequests, mandatory for some eIDAS integrations.
+- **Cl@ve 2.0 Native Support**: Added `ProviderName` support to AuthnRequests, allowing official organization names to be displayed in the governmental gateway.
+- **Service Provider Metadata Extensions**: Automatic injection of `eidas:SPType` into the exported SP Metadata XML.
+- **Intelligent DNI Extraction**: New option in `ClaveAttributeMapper` to automatically clean eIDAS prefixes (e.g., `ES/ES/`) from document identifiers.
+- **CI/CD Integration**: Added GitHub Actions workflow for automated build and test validation.
+- **Robust Configuration**: Introduced `ClaveSAMLIdentityProviderConfig` for better encapsulation of Cl@ve-specific settings.
+- **Predefined Attribute Constants**: Added common eIDAS attribute URIs (DNI, Name, DOB) to `ClaveAttributeMapper` for easier configuration.
+- **Improved Observability**: Added detailed debug logging for SAML request parameters, including session locale.
+- **Expanded Test Suite**: Added new tests for XML generation, DNI extraction, and configuration logic.
+
+### Fixed
+- **Binding Logic**: Corrected hardcoded Redirect binding to use the configured preference.
+
 ## [1.1.0] - 2026-06-05
 
 ### Added

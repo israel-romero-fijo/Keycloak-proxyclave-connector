@@ -15,7 +15,14 @@ import org.keycloak.crypto.KeyWrapper;
 import org.keycloak.crypto.KeyUse;
 import org.keycloak.crypto.Algorithm;
 import org.keycloak.saml.SignatureAlgorithm;
-import org.jboss.logging.Logger;
+import org.keycloak.dom.saml.v2.metadata.EntityDescriptorType;
+import org.keycloak.dom.saml.v2.metadata.ExtensionsType;
+import org.keycloak.dom.saml.v2.metadata.SPSSODescriptorType;
+import org.keycloak.dom.saml.v2.protocol.AuthnRequestType;
+import org.keycloak.saml.common.constants.JBossSAMLURIConstants;
+import org.keycloak.saml.processing.api.saml.v2.request.SAML2Request;
+import org.w3c.dom.Document;
+import org.w3c.dom.Element;
 
 import jakarta.ws.rs.core.Response;
 import jakarta.ws.rs.core.UriInfo;
@@ -45,32 +52,33 @@ public class ClaveIdentityProvider extends SAMLIdentityProvider {
             String issuerURL = getEntityId(uriInfo, realm);
             String destinationUrl = getConfig().getSingleSignOnServiceUrl();
 
+            ClaveSAMLIdentityProviderConfig config = (ClaveSAMLIdentityProviderConfig) getConfig();
+
+            if (logger.isDebugEnabled()) {
+                logger.debugf("Preparing Cl@ve SAML request. Issuer: %s, Destination: %s, Locale: %s",
+                    issuerURL, destinationUrl, session.getContext().resolveLocale(null).getLanguage());
+            }
+
             SAML2AuthnRequestBuilder build = new SAML2AuthnRequestBuilder()
                 .destination(destinationUrl)
                 .issuer(issuerURL)
-                .forceAuthn(getConfig().isForceAuthn())
+                .forceAuthn(config.isForceAuthn())
                 .isPassive(false)
-                .nameIdPolicy(SAML2NameIDPolicyBuilder.format(getConfig().getNameIDPolicyFormat()));
+                .nameIdPolicy(SAML2NameIDPolicyBuilder.format(config.getNameIDPolicyFormat()));
 
-            // Add SPType extension
-            String spType = getConfig().getConfig().getOrDefault(ClaveIdentityProviderFactory.CLAVE_SP_TYPE, "public");
-            build.addExtension(new EidasNodeGenerator(spType));
+            // Add eIDAS extensions (SPType and RequestedAttributes)
+            build.addExtension(new EidasNodeGenerator(config.getSpType(), config.getRequestedAttributes(), config.getProviderName()));
 
             // Add RequestedAuthnContext (LoA)
-            String loa = getConfig().getConfig().get(ClaveIdentityProviderFactory.CLAVE_LOA);
-            if (loa == null || loa.isEmpty()) {
-                loa = ClaveIdentityProviderFactory.LOA_SUBSTANTIAL;
-            }
-
             build.requestedAuthnContext(new SAML2RequestedAuthnContextBuilder()
                 .setComparison(AuthnContextComparisonType.MINIMUM)
-                .addAuthnContextClassRef(loa));
+                .addAuthnContextClassRef(config.getLoa()));
 
             // Create Binding Builder
             JaxrsSAML2BindingBuilder binding = new JaxrsSAML2BindingBuilder(session)
                     .relayState(request.getState().getEncoded());
 
-            if (getConfig().isWantAuthnRequestsSigned()) {
+            if (config.isWantAuthnRequestsSigned()) {
                 KeyWrapper key = session.keys().getActiveKey(realm, KeyUse.SIG, Algorithm.RS256);
 
                 if (key != null) {
@@ -88,12 +96,55 @@ public class ClaveIdentityProvider extends SAMLIdentityProvider {
                 }
             }
 
-            return binding.redirectBinding(build.toDocument()).request(destinationUrl);
+            AuthnRequestType authnRequest = build.createAuthnRequest();
+            if (config.getProviderName() != null && !config.getProviderName().isEmpty()) {
+                authnRequest.setProviderName(config.getProviderName());
+            }
+            Document authnDoc = SAML2Request.convert(authnRequest);
+
+            if (config.isPostBindingAuthnRequest()) {
+                return binding.postBinding(authnDoc).request(destinationUrl);
+            } else {
+                return binding.redirectBinding(authnDoc).request(destinationUrl);
+            }
 
         } catch (Exception e) {
             logger.error("Error preparing Cl@ve SAML request", e);
             throw new RuntimeException("Error preparing Cl@ve SAML request", e);
         }
+    }
+
+    @Override
+    public Response export(UriInfo uriInfo, RealmModel realm, String format) {
+        Response response = super.export(uriInfo, realm, format);
+        if (response.getStatus() == 200 && response.getEntity() instanceof EntityDescriptorType) {
+            EntityDescriptorType entityDescriptor = (EntityDescriptorType) response.getEntity();
+            ClaveSAMLIdentityProviderConfig config = (ClaveSAMLIdentityProviderConfig) getConfig();
+
+            // Add eIDAS Extensions to Metadata
+            SPSSODescriptorType spDescriptor = entityDescriptor.getChoiceType().get(0).getDescriptors().stream()
+                    .filter(d -> d.getSpDescriptor() != null)
+                    .map(d -> d.getSpDescriptor())
+                    .findFirst()
+                    .orElse(null);
+
+            if (spDescriptor != null) {
+                if (spDescriptor.getExtensions() == null) {
+                    spDescriptor.setExtensions(new ExtensionsType());
+                }
+
+                // Manually inject SPType as a DOM element into extensions
+                try {
+                    Document doc = org.keycloak.saml.common.util.DocumentUtil.createDocument();
+                    Element spTypeElement = doc.createElementNS("http://eidas.europa.eu/saml-extensions", "eidas:SPType");
+                    spTypeElement.setTextContent(config.getSpType());
+                    spDescriptor.getExtensions().addExtension(spTypeElement);
+                } catch (Exception e) {
+                    logger.warn("Failed to inject eIDAS extensions into metadata", e);
+                }
+            }
+        }
+        return response;
     }
 
     private String getEntityId(UriInfo uriInfo, RealmModel realm) {
