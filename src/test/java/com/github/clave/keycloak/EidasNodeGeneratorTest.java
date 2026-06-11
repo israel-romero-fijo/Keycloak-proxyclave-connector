@@ -14,7 +14,7 @@ public class EidasNodeGeneratorTest {
 
     @Test
     public void testEidasNodeGeneratorPublic() throws Exception {
-        EidasNodeGenerator generator = new EidasNodeGenerator("public", Collections.emptyList());
+        EidasNodeGenerator generator = new EidasNodeGenerator("public", Collections.emptyList(), "TestProvider");
 
         StringWriter stringWriter = new StringWriter();
         XMLStreamWriter xmlWriter = XMLOutputFactory.newInstance().createXMLStreamWriter(stringWriter);
@@ -29,7 +29,7 @@ public class EidasNodeGeneratorTest {
 
     @Test
     public void testEidasNodeGeneratorPrivate() throws Exception {
-        EidasNodeGenerator generator = new EidasNodeGenerator("private", null);
+        EidasNodeGenerator generator = new EidasNodeGenerator("private", null, null);
 
         StringWriter stringWriter = new StringWriter();
         XMLStreamWriter xmlWriter = XMLOutputFactory.newInstance().createXMLStreamWriter(stringWriter);
@@ -43,7 +43,7 @@ public class EidasNodeGeneratorTest {
     @Test
     public void testEidasNodeGeneratorWithAttributes() throws Exception {
         List<String> attributes = Arrays.asList("attr1", "attr2");
-        EidasNodeGenerator generator = new EidasNodeGenerator("public", attributes);
+        EidasNodeGenerator generator = new EidasNodeGenerator("public", attributes, "TestProvider");
 
         StringWriter stringWriter = new StringWriter();
         XMLStreamWriter xmlWriter = XMLOutputFactory.newInstance().createXMLStreamWriter(stringWriter);

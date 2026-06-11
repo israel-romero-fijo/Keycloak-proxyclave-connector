@@ -18,7 +18,9 @@ import org.keycloak.saml.SignatureAlgorithm;
 import org.keycloak.dom.saml.v2.metadata.EntityDescriptorType;
 import org.keycloak.dom.saml.v2.metadata.ExtensionsType;
 import org.keycloak.dom.saml.v2.metadata.SPSSODescriptorType;
+import org.keycloak.dom.saml.v2.protocol.AuthnRequestType;
 import org.keycloak.saml.common.constants.JBossSAMLURIConstants;
+import org.keycloak.saml.processing.api.saml.v2.request.SAML2Request;
 import org.w3c.dom.Document;
 import org.w3c.dom.Element;
 
@@ -65,7 +67,7 @@ public class ClaveIdentityProvider extends SAMLIdentityProvider {
                 .nameIdPolicy(SAML2NameIDPolicyBuilder.format(config.getNameIDPolicyFormat()));
 
             // Add eIDAS extensions (SPType and RequestedAttributes)
-            build.addExtension(new EidasNodeGenerator(config.getSpType(), config.getRequestedAttributes()));
+            build.addExtension(new EidasNodeGenerator(config.getSpType(), config.getRequestedAttributes(), config.getProviderName()));
 
             // Add RequestedAuthnContext (LoA)
             build.requestedAuthnContext(new SAML2RequestedAuthnContextBuilder()
@@ -94,10 +96,16 @@ public class ClaveIdentityProvider extends SAMLIdentityProvider {
                 }
             }
 
+            AuthnRequestType authnRequest = build.createAuthnRequest();
+            if (config.getProviderName() != null && !config.getProviderName().isEmpty()) {
+                authnRequest.setProviderName(config.getProviderName());
+            }
+            Document authnDoc = SAML2Request.convert(authnRequest);
+
             if (config.isPostBindingAuthnRequest()) {
-                return binding.postBinding(build.toDocument()).request(destinationUrl);
+                return binding.postBinding(authnDoc).request(destinationUrl);
             } else {
-                return binding.redirectBinding(build.toDocument()).request(destinationUrl);
+                return binding.redirectBinding(authnDoc).request(destinationUrl);
             }
 
         } catch (Exception e) {

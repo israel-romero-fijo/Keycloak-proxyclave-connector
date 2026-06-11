@@ -47,4 +47,12 @@ public class ClaveSAMLIdentityProviderConfig extends SAMLIdentityProviderConfig 
     public void setRequestedAttributes(String attributes) {
         getConfig().put(ClaveIdentityProviderFactory.CLAVE_REQUESTED_ATTRIBUTES, attributes);
     }
+
+    public String getProviderName() {
+        return getConfig().get(ClaveIdentityProviderFactory.CLAVE_PROVIDER_NAME);
+    }
+
+    public void setProviderName(String providerName) {
+        getConfig().put(ClaveIdentityProviderFactory.CLAVE_PROVIDER_NAME, providerName);
+    }
 }
