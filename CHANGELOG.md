@@ -2,6 +2,19 @@
 
 All notable changes to this project are documented in this file.
 
+## [1.2.0] - 2026-06-11
+
+### Added
+- **Dynamic SAML Binding Support**: Now respects the administrator's choice of Redirect or POST binding for AuthnRequests.
+- **Enhanced eIDAS Extensions**: Implemented support for `RequestedAttributes` in SAML AuthnRequests, mandatory for some eIDAS integrations.
+- **Robust Configuration**: Introduced `ClaveSAMLIdentityProviderConfig` for better encapsulation of Cl@ve-specific settings.
+- **Predefined Attribute Constants**: Added common eIDAS attribute URIs (DNI, Name, DOB) to `ClaveAttributeMapper` for easier configuration.
+- **Improved Observability**: Added detailed debug logging for SAML request parameters.
+- **Expanded Test Suite**: Added new tests for XML generation and configuration logic.
+
+### Fixed
+- **Binding Logic**: Corrected hardcoded Redirect binding to use the configured preference.
+
 ## [1.1.0] - 2026-06-05
 
 ### Added

@@ -15,7 +15,6 @@ import org.keycloak.crypto.KeyWrapper;
 import org.keycloak.crypto.KeyUse;
 import org.keycloak.crypto.Algorithm;
 import org.keycloak.saml.SignatureAlgorithm;
-import org.jboss.logging.Logger;
 
 import jakarta.ws.rs.core.Response;
 import jakarta.ws.rs.core.UriInfo;
@@ -45,32 +44,32 @@ public class ClaveIdentityProvider extends SAMLIdentityProvider {
             String issuerURL = getEntityId(uriInfo, realm);
             String destinationUrl = getConfig().getSingleSignOnServiceUrl();
 
+            ClaveSAMLIdentityProviderConfig config = (ClaveSAMLIdentityProviderConfig) getConfig();
+
+            if (logger.isDebugEnabled()) {
+                logger.debugf("Preparing Cl@ve SAML request. Issuer: %s, Destination: %s", issuerURL, destinationUrl);
+            }
+
             SAML2AuthnRequestBuilder build = new SAML2AuthnRequestBuilder()
                 .destination(destinationUrl)
                 .issuer(issuerURL)
-                .forceAuthn(getConfig().isForceAuthn())
+                .forceAuthn(config.isForceAuthn())
                 .isPassive(false)
-                .nameIdPolicy(SAML2NameIDPolicyBuilder.format(getConfig().getNameIDPolicyFormat()));
+                .nameIdPolicy(SAML2NameIDPolicyBuilder.format(config.getNameIDPolicyFormat()));
 
-            // Add SPType extension
-            String spType = getConfig().getConfig().getOrDefault(ClaveIdentityProviderFactory.CLAVE_SP_TYPE, "public");
-            build.addExtension(new EidasNodeGenerator(spType));
+            // Add eIDAS extensions (SPType and RequestedAttributes)
+            build.addExtension(new EidasNodeGenerator(config.getSpType(), config.getRequestedAttributes()));
 
             // Add RequestedAuthnContext (LoA)
-            String loa = getConfig().getConfig().get(ClaveIdentityProviderFactory.CLAVE_LOA);
-            if (loa == null || loa.isEmpty()) {
-                loa = ClaveIdentityProviderFactory.LOA_SUBSTANTIAL;
-            }
-
             build.requestedAuthnContext(new SAML2RequestedAuthnContextBuilder()
                 .setComparison(AuthnContextComparisonType.MINIMUM)
-                .addAuthnContextClassRef(loa));
+                .addAuthnContextClassRef(config.getLoa()));
 
             // Create Binding Builder
             JaxrsSAML2BindingBuilder binding = new JaxrsSAML2BindingBuilder(session)
                     .relayState(request.getState().getEncoded());
 
-            if (getConfig().isWantAuthnRequestsSigned()) {
+            if (config.isWantAuthnRequestsSigned()) {
                 KeyWrapper key = session.keys().getActiveKey(realm, KeyUse.SIG, Algorithm.RS256);
 
                 if (key != null) {
@@ -88,7 +87,11 @@ public class ClaveIdentityProvider extends SAMLIdentityProvider {
                 }
             }
 
-            return binding.redirectBinding(build.toDocument()).request(destinationUrl);
+            if (config.isPostBindingAuthnRequest()) {
+                return binding.postBinding(build.toDocument()).request(destinationUrl);
+            } else {
+                return binding.redirectBinding(build.toDocument()).request(destinationUrl);
+            }
 
         } catch (Exception e) {
             logger.error("Error preparing Cl@ve SAML request", e);
